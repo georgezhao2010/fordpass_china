@@ -1,5 +1,7 @@
 # FordPass China
 
+简体中文 | [English](https://github.com/georgezhao2010/fordpass_china/blob/main/README_en.md)
+
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
 福特派的Home Assistant集成组件
