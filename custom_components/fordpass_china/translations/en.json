@@ -1,0 +1,27 @@
+{
+    "config": {
+        "error": {
+            "cant_login": "Can't login, check username and password"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "username": "Username",
+                    "password": "Password"
+
+                },
+                "title": "Add with FordPass account"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Update Interval",
+                "data": {
+                    "scan_interval": "Update Interval (minutes)"
+                }
+            }
+        }
+    }
+}

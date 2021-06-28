@@ -1,0 +1,12 @@
+{
+  "domain": "fordpass_china",
+  "name": "FordPass China",
+  "version": "0.1.2",
+  "config_flow": true,
+  "documentation": "https://github.com/georgezhao2010/fordpass_china",
+  "issue_tracker": "https://github.com/georgezhao2010/fordpass_china/issues",
+  "requirements": [],
+  "dependencies": [],
+  "iot_class": "cloud_polling",
+  "codeowners": ["@georgezhao2010"]
+}
