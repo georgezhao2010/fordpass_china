@@ -1,5 +1,7 @@
 # FordPass China
 
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
+
 福特派的Home Assistant集成组件
 
 如果你的福特汽车支持福特派手机App远程访问车辆，那么这个组件可以使你通过Home Assistant来显示车辆状态，并远程控制车辆。  
