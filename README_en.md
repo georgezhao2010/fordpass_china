@@ -4,31 +4,31 @@
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
-The Ford FordPass integration components for Home Assistant.
+The Ford FordPass integration component for Home Assistant.
 
-If your Ford vehicles could access via FordPass App, This component allow you control your vehicle or get vehicle details in Home Assistant.
+If your Ford vehicle could access via FordPass App, This component allows you to control your vehicle or get vehicle information in Home Assistant.
 To use this component, you need a FordPass account, if you do not have one, register one in FordPass App.
 
 **attention: This compontent can be used inside china mainland only**
 
 # Features
 
-This component supports more vehicle details than officially FordPass App.
+This component supports more vehicle information than official FordPass App.
 
 ## Remote controls
 - Start/stop vehicle
 - Lock/unlock vehicle
 
-## Vehicle details
-- Last know GPS coordinates
+## Vehicle information
+- Last known GPS coordinates
 - Fuel level
 - Odometer
-- Distance to empty
-- Oil Life
+- Remainder range
+- Oil Life 
 - Ignition status
-- Doors status
-- Windows status
-- Tires Pressure
+- Door status
+- Window status
+- Tire Pressure
 - Battery health and voltage
 
 # Installtion
