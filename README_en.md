@@ -9,7 +9,7 @@ The Ford FordPass integration component for Home Assistant.
 If your Ford vehicle could access via FordPass App, This component allows you to control your vehicle or get vehicle information in Home Assistant.
 To use this component, you need a FordPass account, if you do not have one, register one in FordPass App.
 
-**attention: This compontent can be used in china mainland only**
+**attention: This compontent can be used in mainland china only**
 
 # Features
 
