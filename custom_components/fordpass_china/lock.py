@@ -25,6 +25,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             locks.append(r_lock)
     async_add_entities(locks)
 
+
 class FordVehilleLock(FordpassEntity, LockEntity):
     @property
     def state(self):

@@ -1,7 +1,7 @@
 DOMAIN = "fordpass_china"
 STATES_MANAGER = "states_manager"
 FORD_VEHICLES = "ford_vehicles"
-
+ACCOUNTS = "accounts"
 SSO_URL = "https://sso.ci.ford.com.cn/"
 CV_URL = "https://cnapi.cv.ford.com.cn/"
 API_URL = "https://cn.api.mps.ford.com.cn/"

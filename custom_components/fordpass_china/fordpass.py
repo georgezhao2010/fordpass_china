@@ -36,40 +36,51 @@ class FordPass(object):
             **DEFAULT_HEADERS,
             "Content-Type": "application/x-www-form-urlencoded",
         }
-        r = requests.post(
-            f"{SSO_URL}/oidc/endpoint/default/token",
-            data=data,
-            headers=headers,
-        )
-        if r.status_code == 200:
-            result = r.json()
-            data = {"code": result["access_token"]}
+        try:
+            r = requests.post(
+                f"{SSO_URL}/oidc/endpoint/default/token",
+                data=data,
+                headers=headers,
+                timeout=5
+            )
+            if r.status_code == 200:
+                result = r.json()
+                data = {"code": result["access_token"]}
+                r = requests.put(
+                    f"{API_URL}api/oauth2/v1/token",
+                    data=json.dumps(data),
+                    headers=API_HEADERS,
+                    timeout=5
+                )
+                if r.status_code == 200:
+                    result = r.json()
+                    self._token = result["access_token"]
+                    self._refresh_token = result["refresh_token"]
+                    self._expires = time.time() + result["expires_in"] - 100
+        except requests.exceptions.RequestException:
+            _LOGGER.debug(f"Timed out when auth")
+        return self._token is not None
+
+    def refresh_token(self):
+        data = {"refresh_token": self._refresh_token}
+        try:
             r = requests.put(
-                f"{API_URL}api/oauth2/v1/token",
+                f"{API_URL}api/oauth2/v1/refresh",
                 data=json.dumps(data),
                 headers=API_HEADERS,
+                timeout=5
             )
             if r.status_code == 200:
                 result = r.json()
                 self._token = result["access_token"]
                 self._refresh_token = result["refresh_token"]
                 self._expires = time.time() + result["expires_in"] - 100
-        return self._token is not None
-
-    def refresh_token(self):
-        data = {"refresh_token": self._refresh_token}
-        r = requests.put(
-            f"{API_URL}api/oauth2/v1/refresh",
-            data=json.dumps(data),
-            headers=API_HEADERS
-        )
-        if r.status_code == 200:
-            result = r.json()
-            self._token = result["access_token"]
-            self._refresh_token = result["refresh_token"]
-            self._expires = time.time() + result["expires_in"] - 100
-        elif r.status_code == 401:
-            self.auth()
+            elif r.status_code == 401:
+                self.auth()
+            else:
+                _LOGGER.debug(f"Got unexpected status code when refresh token - {r.status_code}")
+        except requests.exceptions.RequestException:
+            _LOGGER.debug(f"Timed out when refresh token")
 
     def check_token(self):
         if self._expires:
@@ -87,22 +98,16 @@ class FordPass(object):
                 **API_HEADERS,
                 "auth-token": self._token
             }
-            r = requests.get(
-                f"{CV_URL}api/users", params=params, headers=headers
-            )
-            if r.status_code == 200:
-                result = r.json()
-            elif r.status_code == 401:
-                if self.auth():
-                    headers = {
-                        **API_HEADERS,
-                        "auth-token": self._token
-                    }
-                    r = requests.get(
-                        f"{CV_URL}api/users", params=params, headers=headers
-                    )
-                    if r.status_code == 200:
-                        result = r.json()
+            try:
+                r = requests.get(
+                    f"{CV_URL}api/users", params=params, headers=headers, timeout=5
+                )
+                if r.status_code == 200:
+                    result = r.json()
+                else:
+                    _LOGGER.debug(f"Got unexpected status code when get user info - {r.status_code}")
+            except requests.exceptions.RequestException:
+                _LOGGER.debug(f"Timed out when get user info")
         return result
 
     def get_vehicles(self):
@@ -117,24 +122,19 @@ class FordPass(object):
                 **API_HEADERS,
                 "auth-token": self._token
             }
-            r = requests.get(
-                f"{API_URL}api/dashboard/v1/users/vehicles",
-                params=params,
-                headers=headers
-            )
-            if r.status_code == 200:
-                result = r.json()
-            elif r.status_code == 401:
-                if self.auth():
-                    headers = {
-                        **API_HEADERS,
-                        "auth-token": self._token
-                    }
-                    r = requests.get(
-                        f"{API_URL}api/dashboard/v1/users/vehicles", params=params, headers=headers
-                    )
-                    if r.status_code == 200:
-                        result = r.json()
+            try:
+                r = requests.get(
+                    f"{API_URL}api/dashboard/v1/users/vehicles",
+                    params=params,
+                    headers=headers,
+                    timeout=5
+                )
+                if r.status_code == 200:
+                    result = r.json()
+                else:
+                    _LOGGER.debug(f"Got unexpected status code when get vehicles - {r.status_code}")
+            except requests.exceptions.RequestException:
+                _LOGGER.debug(f"Timed out when get vehicles")
         return result
 
     def get_vehicle_status(self, vin):
@@ -145,23 +145,19 @@ class FordPass(object):
                 **API_HEADERS,
                 "auth-token": self._token
             }
-            r = requests.get(
-                f"{CV_URL}api/vehicles/v4/{vin}/status", params=params, headers=headers
-            )
-            if r.status_code == 200:
-                result = r.json()
-            elif r.status_code == 401:
-                if self.auth():
-                    headers = {
-                        **API_HEADERS,
-                        "auth-token": self._token
-                    }
-                    r = requests.get(
-                        f"{CV_URL}vehicles/v4/{vin}/status", params=params, headers=headers
-                    )
-                    if r.status_code == 200:
-                        result = r.json()
-        _LOGGER.debug(f"New vehicle status received {result}")
+            try:
+                r = requests.get(
+                    f"{CV_URL}api/vehicles/v4/{vin}/status",
+                    params=params,
+                    headers=headers,
+                    timeout=5
+                )
+                if r.status_code == 200:
+                    result = r.json()
+                else:
+                    _LOGGER.debug(f"Got unexpected status code when get vehicle status - {r.status_code}")
+            except requests.exceptions.RequestException:
+                _LOGGER.debug(f"Timed out when get vehicle status")
         return result
 
     def _send_command(self, opt, url):
@@ -170,13 +166,16 @@ class FordPass(object):
                 **API_HEADERS,
                 "auth-token": self._token
             }
-            r = getattr(requests, opt)(url, headers = headers)
-            if r.status_code == 200:
-                rjson = r.json()
-                if rjson["status"] == 200:
-                    return rjson["commandId"]
-                else:
-                    _LOGGER.debug(f"Got unexpected status code on {opt} {url} - {rjson}")
+            try:
+                r = getattr(requests, opt)(url, headers=headers, timeout=5)
+                if r.status_code == 200:
+                    rjson = r.json()
+                    if rjson["status"] == 200:
+                        return rjson["commandId"]
+                    else:
+                        _LOGGER.debug(f"Got unexpected status code when {opt} {url} - {rjson}")
+            except requests.exceptions.RequestException as e:
+                _LOGGER.debug(f"Timed out when {opt} {url}")
         return None
 
     def _send_check_command(self, url):
@@ -185,15 +184,18 @@ class FordPass(object):
                 **API_HEADERS,
                 "auth-token": self._token
             }
-            r = requests.get(url, headers = headers)
-            if r.status_code == 200:
-                rjson = r.json()
-                if rjson["status"] == 200:
-                    return True
-                elif rjson["status"] != 552:      # pending
-                    pass
-                else:
-                    _LOGGER.debug(f"Got unexpected status code on get {url} - {rjson}")
+            try:
+                r = requests.get(url, headers=headers, timeout=5)
+                if r.status_code == 200:
+                    rjson = r.json()
+                    if rjson["status"] == 200:
+                        return True
+                    elif rjson["status"] != 552:      # pending
+                        pass
+                    else:
+                        _LOGGER.debug(f"Got unexpected status code when get {url} - {rjson}")
+            except requests.exceptions.RequestException:
+                _LOGGER.debug(f"Timed out when get {url} ")
         return False
 
     def lock_doors(self, vin):

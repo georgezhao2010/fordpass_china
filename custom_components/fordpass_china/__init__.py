@@ -5,7 +5,8 @@ from .const import (
     DOMAIN,
     FORD_VEHICLES,
     STATES_MANAGER,
-    DEFAULT_SCAN_INTERVAL
+    DEFAULT_SCAN_INTERVAL,
+    ACCOUNTS
 )
 
 from homeassistant.const import (
@@ -37,6 +38,11 @@ async def async_setup_entry(hass: HomeAssistant, config_entry):
     config = config_entry.data
     username = config[CONF_USERNAME]
     password = config[CONF_PASSWORD]
+    if DOMAIN not in hass.data:
+        hass.data[DOMAIN] = {}
+    if ACCOUNTS not in hass.data[DOMAIN]:
+        hass.data[DOMAIN][ACCOUNTS] = []
+    hass.data[DOMAIN][ACCOUNTS].append(username)
     scan_interval = config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
     fpass = FordPass(username, password)
     vehicles = await hass.async_add_executor_job(fpass.get_vehicles)
@@ -61,3 +67,13 @@ async def async_setup_entry(hass: HomeAssistant, config_entry):
         config_entry.add_update_listener(update_listener)
         return True
     return False
+
+
+async def async_unload_entry(hass: HomeAssistant, config_entry):
+    s_manager = hass.data[config_entry.entry_id][STATES_MANAGER]
+    s_manager.stop_gather()
+    del hass.data[config_entry.entry_id]
+    hass.data[DOMAIN][ACCOUNTS].remove(config_entry.data[CONF_USERNAME])
+    for platform in {"device_tracker", "sensor", "switch", "lock"}:
+        await hass.config_entries.async_forward_entry_unload(config_entry, platform)
+    return True

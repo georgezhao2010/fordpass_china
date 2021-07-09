@@ -2,9 +2,8 @@ import logging
 from homeassistant import config_entries, core
 from homeassistant.core import callback
 import voluptuous as vol
-from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
-from .const import DOMAIN, DEFAULT_SCAN_INTERVAL
+from .const import DOMAIN, DEFAULT_SCAN_INTERVAL, ACCOUNTS
 from .fordpass import FordPass
 
 from homeassistant.const import (
@@ -19,6 +18,9 @@ _LOGGER = logging.getLogger(__name__)
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None, error=None):
         if user_input is not None:
+            if DOMAIN in self.hass.data and ACCOUNTS in self.hass.data[DOMAIN] \
+                    and user_input[CONF_USERNAME] in self.hass.data[DOMAIN][ACCOUNTS]:
+                return await self.async_step_user(error="account_exist")
             fordpass = FordPass(user_input[CONF_USERNAME], user_input[CONF_PASSWORD])
             if await self.hass.async_add_executor_job(fordpass.auth):
                 return self.async_create_entry(title=user_input[CONF_USERNAME], data=user_input)
@@ -58,5 +60,5 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     CONF_SCAN_INTERVAL,
                     default=scan_interval,
                 ): vol.All(vol.Coerce(int)),
-            }),
+            })
         )
