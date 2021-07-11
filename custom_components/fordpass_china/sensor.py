@@ -2,7 +2,6 @@ from .baseentity import FordpassEntity
 from .baseentity import VEHICLE_STATUS
 
 from .const import (
-    DOMAIN,
     FORD_VEHICLES,
     STATES_MANAGER
 )

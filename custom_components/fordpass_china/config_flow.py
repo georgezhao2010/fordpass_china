@@ -1,5 +1,5 @@
 import logging
-from homeassistant import config_entries, core
+from homeassistant import config_entries
 from homeassistant.core import callback
 import voluptuous as vol
 

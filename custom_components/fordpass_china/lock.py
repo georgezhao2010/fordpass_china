@@ -1,5 +1,3 @@
-import functools
-
 from homeassistant.components.lock import LockEntity
 from .baseentity import FordpassEntity
 from .baseentity import VEHICLE_LOCKS

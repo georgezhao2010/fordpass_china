@@ -1,5 +1,3 @@
-import functools
-
 from homeassistant.helpers.entity import ToggleEntity
 from .baseentity import FordpassEntity
 from .baseentity import VEHICLE_SWITCHES
@@ -28,7 +26,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class FordVehicleSwitch(FordpassEntity, ToggleEntity):
     @property
     def state(self):
-        result = STATE_OFF
         value = self._vehicle.status
         for key in self._state_key["key_path"]:
             value = value[key]
