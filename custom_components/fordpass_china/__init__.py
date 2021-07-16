@@ -46,7 +46,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry):
     scan_interval = config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
     fpass = FordPass(username, password)
     vehicles = await hass.async_add_executor_job(fpass.get_vehicles)
-    if len(vehicles) > 0:
+    if vehicles is not None and len(vehicles) > 0:
         hass.data[config_entry.entry_id] = {}
         hass.data[config_entry.entry_id][FORD_VEHICLES] = []
 
