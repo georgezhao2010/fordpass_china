@@ -1,7 +1,7 @@
 import logging
 from homeassistant.const import (
     LENGTH_KILOMETERS,
-    VOLT,
+    POWER_VOLT_AMPERE,
     PERCENTAGE
 )
 from homeassistant.helpers.entity import Entity
@@ -44,7 +44,7 @@ VEHICLE_STATUS = [
         "name": "Battery Voltage",
         "key_path": ["battery", "batteryStatusActual", "value"],
         "icon": "mdi:car-battery",
-        "unit": VOLT
+        "unit": POWER_VOLT_AMPERE
     },{
         "key": "oil_life",
         "name": "Oil Life",
