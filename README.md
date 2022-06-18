@@ -1,15 +1,17 @@
 # FordPass China
 
-简体中文 | [English](https://github.com/georgezhao2010/fordpass_china/blob/main/README_en.md)
-
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
 福特派的Home Assistant集成组件
 
+同时支持林肯之道。
+
 如果你的福特汽车支持福特派手机App远程访问车辆，那么这个组件可以使你通过Home Assistant来显示车辆状态，并远程控制车辆。  
 使用该组件，你需要一个福特派账号。如果你没有，可以下载官方的福特派App，注册账号并且在其中绑定你的车辆。
 
-**注意：该组件仅支持中国大陆使用的福特汽车。**
+福特派和林肯之道账户通用，但车辆数据不互通，因此配置集成时要选择是福特派还是林肯之道。
+
+**注意：该组件仅支持中国大陆使用的福特/林肯汽车。**
 
 # 支持的功能
 该组件比官方的福特派App提供了更多可以监控的信息，以后还可以方便地进行扩展。
@@ -34,4 +36,14 @@
 可以使用HACS的自定义存储库方式安装，或者从[Latest Release](https://github.com/georgezhao2010/fordpass_china/releases/latest)下载最新的发行版，解压并将`custom_components/fordpass_china`中所有内容复制到你的Home Assistant配置文件夹的`custom_components/fordpass_china`下，并重启Home Assistant。
 
 # 配置
-在Home Assistant集成中添加"FordPass China"，并输入福特派的账户名及密码，如果组件发现了你的汽车，将会显示它。
+在Home Assistant集成中添加"FordPass China"，~~并输入福特派的账户名及密码~~(由于福特中国更改了API认证方式，因此账户密码认证方式暂不可用)，请选择使用refresh_tokenr认证方式。选如果组件发现了你的汽车，将会显示它。
+
+# Debug
+要打开调试日志输出，在configuration.yaml中做如下配置
+```
+logger:
+  default: warn
+  logs:
+    custom_components.fordpass_china: debug
+```
+
