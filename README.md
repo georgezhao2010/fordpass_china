@@ -36,7 +36,7 @@
 可以使用HACS的自定义存储库方式安装，或者从[Latest Release](https://github.com/georgezhao2010/fordpass_china/releases/latest)下载最新的发行版，解压并将`custom_components/fordpass_china`中所有内容复制到你的Home Assistant配置文件夹的`custom_components/fordpass_china`下，并重启Home Assistant。
 
 # 配置
-在Home Assistant集成中添加"FordPass China"，~~并输入福特派的账户名及密码~~(由于福特中国更改了API认证方式，因此账户密码认证方式暂不可用)，请选择使用refresh_tokenr认证方式。选如果组件发现了你的汽车，将会显示它。
+在Home Assistant集成中添加"FordPass China"，~~并输入福特派的账户名及密码~~(由于福特中国更改了API认证方式，因此账户密码认证方式暂不可用)，请选择使用refresh_tokenr认证方式。如果组件发现了你的汽车，将会显示它。
 
 # Debug
 要打开调试日志输出，在configuration.yaml中做如下配置
