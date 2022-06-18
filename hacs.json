@@ -1,5 +1,4 @@
 {
     "name": "FordPass China",
-    "domains": ["device_tracker", "sensor", "switch", "lock"],
     "render_readme": true
 }
