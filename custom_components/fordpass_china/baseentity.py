@@ -2,11 +2,11 @@ import logging
 from homeassistant.const import (
     LENGTH_KILOMETERS,
     ELECTRIC_POTENTIAL_VOLT,
-    PERCENTAGE
+    PERCENTAGE,
+    STATE_UNKNOWN
 )
-from homeassistant.helpers.entity import Entity
 from .const import DOMAIN
-from .vehicle import FordVehicle
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -143,6 +143,7 @@ VEHICLE_SWITCHES = [
         "key": "remote_start",
         "name": "Remote Start",
         "key_path": ["remoteStartStatus", "value"],
+        "op_endpoint": "engine/start",
         "icon": "mdi:engine"
     }
 ]
@@ -152,32 +153,47 @@ VEHICLE_LOCKS = [
         "key": "lock",
         "name": "Lock",
         "key_path": ["lockStatus", "value"],
+        "op_endpoint": "doors/lock",
         "icon": "mdi:lock"
     }
 ]
 
-class FordpassEntity(Entity):
-    def __init__(self, state_manager, vehicle: FordVehicle, state_key=None):
-        self._state_manager = state_manager
-        self._vehicle = vehicle
+
+class FordpassEntity(CoordinatorEntity):
+    def __init__(self, coordinator, state_key=None):
+        super().__init__(coordinator)
         self._state_key = state_key
-        self._state_manager.add_update(self._vehicle.vin, self._update_state)
         if state_key is None:
-            self._unique_id = f"{DOMAIN}.{self._vehicle.vin.lower()}"
+            self._unique_id = f"{DOMAIN}.{self.coordinator.vin.lower()}"
         else:
-            self._unique_id = f"{DOMAIN}.{self._vehicle.vin.lower()}_{self._state_key['key']}"
+            self._unique_id = f"{DOMAIN}.{self.coordinator.vin.lower()}_{self._state_key['key']}"
         self.entity_id = self._unique_id
         self._device_info = {
             "manufacturer": "Ford Motor Company",
-            "model": self._vehicle.model,
-            "identifiers": {(DOMAIN, self._vehicle.vin.lower())},
-            "name": self._vehicle.name,
-            "sw_version": self._vehicle.year,
+            "model": self.coordinator.model,
+            "identifiers": {(DOMAIN, self.coordinator.vin.lower())},
+            "name": self.coordinator.vehicle_name,
+            "sw_version": self.coordinator.year,
         }
 
-    def _update_state(self):
-        self.schedule_update_ha_state()
-        #self.async_schedule_update_ha_state()
+    def get_value(self):
+        value = self.coordinator.data
+        try:
+            for key in self._state_key["key_path"]:
+                value = value[key]
+            if type(value).__name__ == "float":
+                return round(value, 2)
+        except Exception as e:
+            value = STATE_UNKNOWN
+        return value
+
+    @property
+    def name(self):
+        return f"{self.coordinator.vehicle_name} {self._state_key['name']}"
+
+    @property
+    def icon(self):
+        return self._state_key["icon"] if "icon" in self._state_key else None;
 
     @property
     def device_info(self):
@@ -190,3 +206,11 @@ class FordpassEntity(Entity):
     @property
     def should_poll(self):
         return False
+
+
+class FordpassSwitchEntity(FordpassEntity):
+    async def async_switch_on(self):
+        self.coordinator.async_set_switch(self._state_key["op_endpoint"], turn_on=True)
+
+    async def async_switch_off(self):
+        self.coordinator.async_set_switch(self._state_key["op_endpoint"], turn_on=False)

@@ -1,5 +1,5 @@
 from homeassistant.helpers.entity import ToggleEntity
-from .baseentity import FordpassEntity
+from .baseentity import FordpassSwitchEntity
 from .baseentity import VEHICLE_SWITCHES
 from homeassistant.const import (
     STATE_ON,
@@ -9,26 +9,23 @@ from homeassistant.const import (
 from typing import Any
 
 from .const import (
-    FORD_VEHICLES,
-    STATES_MANAGER
+    FORD_VEHICLES
 )
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     switches = []
-    states_manager = hass.data[config_entry.entry_id][STATES_MANAGER]
-    for single_vehicle in hass.data[config_entry.entry_id][FORD_VEHICLES]:
+    for vehicle in hass.data[config_entry.entry_id][FORD_VEHICLES]:
         for key in VEHICLE_SWITCHES:
-            r_switch = FordVehicleSwitch(states_manager, single_vehicle, key)
+            r_switch = FordVehicleSwitch(vehicle, key)
             switches.append(r_switch)
     async_add_entities(switches)
 
-class FordVehicleSwitch(FordpassEntity, ToggleEntity):
+
+class FordVehicleSwitch(FordpassSwitchEntity, ToggleEntity):
     @property
     def state(self):
-        value = self._vehicle.status
-        for key in self._state_key["key_path"]:
-            value = value[key]
+        value = self.get_value()
         if value == 0:
             result = STATE_OFF
         else:
@@ -36,23 +33,11 @@ class FordVehicleSwitch(FordpassEntity, ToggleEntity):
         return result
 
     @property
-    def name(self):
-        return f"{self._vehicle.name} {self._state_key['name']}"
-
-    @property
-    def icon(self):
-        return self._state_key["icon"] if "icon" in self._state_key else None;
-
-    @property
     def is_on(self) -> bool:
         return self._state == STATE_ON
 
-    def turn_on(self, **kwargs: Any):
-        command_id = self._vehicle.start_engine()
-        if command_id is not None:
-            self._state_manager.add_subscription(self._vehicle.vin, self._state_key["key"], command_id)
+    async def async_turn_on(self, **kwargs: Any):
+        await self.async_switch_on()
 
-    def turn_off(self, **kwargs: Any):
-        command_id = self._vehicle.stop_engine()
-        if command_id is not None:
-            self._state_manager.add_subscription(self._vehicle.vin, self._state_key["key"], command_id)
+    async def async_turn_off(self, **kwargs: Any):
+        await self.async_switch_off()

@@ -2,16 +2,31 @@
     "config": {
         "error": {
             "cant_login": "无法登录，请验证用户名密码",
+            "cant_auth": "无法使用refresh_tokn认证账户, refresh_tokn不正确?",
             "account_exist": "该用户名已经配置过，请用其它用户名进行配置"
         },
         "step": {
             "user": {
+                "description": "由于福特中国更改了API服务器的认证方式, 账户验证目前**暂不可用** ",
+                "data": {
+                    "auth_type": "认证类型"
+                },
+                "title": "认证类型"
+            },
+            "account": {
                 "data": {
                     "username": "用户名(手机)",
-                    "password": "密码"
-
+                    "password": "密码",
+                    "vehicle_type": "车辆类型"
                 },
-                "title": "以福特派账号登录"
+                "title": "以福特派或林肯之道账号认证"
+            },
+            "token": {
+                "data": {
+                    "refresh_token": "refresh_token",
+                    "vehicle_type": "车辆类型"
+                },
+                "title": "以refresh_token认证"
             }
         }
     },

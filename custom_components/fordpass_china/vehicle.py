@@ -1,5 +1,13 @@
-from .fordpass import FordPass
 import math
+import logging
+import asyncio
+from .ford.fordpass import FordPass, CommandResult
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from datetime import timedelta
+import async_timeout
+
+
+_LOGGER = logging.getLogger(__name__)
 
 PI = 3.1415926536
 
@@ -37,45 +45,38 @@ def gps_unshift(wglat, wglon):
     return mglat, mglon
 
 
-class FordVehicle():
-    def __init__(self, fordpass: FordPass, vehicle_info):
+class FordVehicle(DataUpdateCoordinator):
+    def __init__(self, hass, fordpass: FordPass, vehicle_info, update_interval):
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=vehicle_info["vin"],
+            update_interval=timedelta(minutes=update_interval)
+        )
         self._fordpass = fordpass
         self._vin = vehicle_info["vin"]
         self._model = vehicle_info["modelName"]
         self._year = vehicle_info["modelYear"]
-        self._name = vehicle_info["nickName"]
-        self._status = []
-        self._latitude = 0
-        self._longitude = 0
+        self._vehicle_name = vehicle_info["nickName"]
 
-    def refresh_status(self):
-        self._status = self._fordpass.get_vehicle_status(self._vin)
-        if ("vehiclestatus" in self._status
-                and "gps" in self._status["vehiclestatus"]
-                and "latitude" in self._status["vehiclestatus"]["gps"]
-                and "longitude" in self._status["vehiclestatus"]["gps"]):
-            wglat = float(self._status["vehiclestatus"]["gps"]["latitude"])
-            wglon = float(self._status["vehiclestatus"]["gps"]["longitude"])
-            self._latitude, self._longitude = gps_unshift(wglat, wglon)
+    async def _async_update_data(self):
+        _LOGGER.debug("Data updating...")
+        data = self.data
+        try:
+            async with async_timeout.timeout(60):
+                _status = await self._fordpass.get_vehicle_status(self._vin)
+                if _status:
+                    if "gps" in _status and "latitude" in _status["gps"] and "longitude" in _status["gps"]:
+                        wglat = float(_status["gps"]["latitude"])
+                        wglon = float(_status["gps"]["longitude"])
+                        _status["gps"]["latitude"], _status["gps"]["longitude"] = gps_unshift(wglat, wglon)
+                    data = _status
+        except asyncio.TimeoutError:
+            _LOGGER.warning("Data update timed out")
+        return data
 
-    @property
-    def is_valid(self):
-        return "status" in self._status and self._status["status"] == 200
-
-    @property
-    def status(self):
-        if self.is_valid and "vehiclestatus" in self._status:
-            return self._status["vehiclestatus"]
-        else:
-            return None
-
-    @property
-    def latitude(self):
-        return self._latitude
-
-    @property
-    def longitude(self):
-        return self._longitude
+    def set_update_interval(self, update_interval):
+        self.update_interval = timedelta(minutes=update_interval)
 
     @property
     def vin(self) -> str:
@@ -90,23 +91,21 @@ class FordVehicle():
         return self._year
 
     @property
-    def name(self) -> str:
-        return self._name
+    def vehicle_name(self) -> str:
+        return self._vehicle_name
 
-    def lock_doors(self):
-        return self._fordpass.lock_doors(self._vin)
+    async def _check_command(self, commandid, end_point):
+        while True:
+            result = await self._fordpass.async_get_switch_completed(self.vin, end_point, commandid)
+            if result == CommandResult.PENDING:
+                await asyncio.sleep(1)
+                continue
+            else:
+                if result == CommandResult.SUCCESS:
+                    await self.async_refresh()
+                return
 
-    def unlock_doors(self):
-        return self._fordpass.unlock_doors(self._vin)
-
-    def start_engine(self):
-        return self._fordpass.start_engine(self._vin)
-
-    def stop_engine(self):
-        return self._fordpass.stop_engine(self._vin)
-
-    def check_lock(self, command_id):
-        return self._fordpass.check_lock(self._vin, command_id)
-
-    def check_engine(self, command_id):
-        return self._fordpass.check_engine(self._vin, command_id)
+    async def async_set_switch(self, end_point, turn_on):
+        commandid = await self._fordpass.async_set_switch(self.vin, end_point, turn_on)
+        if commandid:
+            self.hass.loop.create_task(self._check_command(commandid, end_point))

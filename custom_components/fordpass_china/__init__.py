@@ -1,32 +1,28 @@
 import logging
-
+from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from homeassistant.core import HomeAssistant
 from .const import (
     DOMAIN,
     FORD_VEHICLES,
-    STATES_MANAGER,
     DEFAULT_SCAN_INTERVAL,
-    ACCOUNTS
+    CONF_VEHICLE_TYPE,
+    CONF_REFRESH_TOKEN
 )
-
 from homeassistant.const import (
     CONF_PASSWORD,
     CONF_USERNAME,
     CONF_SCAN_INTERVAL
 )
-
-from .fordpass import FordPass
+from .ford.fordpass import FordPass
 from .vehicle import FordVehicle
-from .state_manager import StateManager
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def update_listener(hass, config_entry):
-    hub = hass.data[config_entry.entry_id][STATES_MANAGER]
-    scan_interval = config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
-    if hub is not None:
-        hub.set_interval(scan_interval * 60)
+    update_interval = config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+    for coordinator in hass.data[config_entry.entry_id][FORD_VEHICLES]:
+        coordinator.set_update_interval(update_interval)
 
 
 async def async_setup(hass: HomeAssistant, hass_config: dict):
@@ -36,44 +32,35 @@ async def async_setup(hass: HomeAssistant, hass_config: dict):
 
 async def async_setup_entry(hass: HomeAssistant, config_entry):
     config = config_entry.data
-    username = config[CONF_USERNAME]
-    password = config[CONF_PASSWORD]
-    if DOMAIN not in hass.data:
-        hass.data[DOMAIN] = {}
-    if ACCOUNTS not in hass.data[DOMAIN]:
-        hass.data[DOMAIN][ACCOUNTS] = []
-    hass.data[DOMAIN][ACCOUNTS].append(username)
+    vehicle_type = config.get(CONF_VEHICLE_TYPE)
+    username = config.get(CONF_USERNAME)
+    password = config.get(CONF_PASSWORD)
+    refresh_token = config.get(CONF_REFRESH_TOKEN)
     scan_interval = config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
-    fpass = FordPass(username, password)
-    vehicles = await hass.async_add_executor_job(fpass.get_vehicles)
-    if vehicles is not None and len(vehicles) > 0:
+    session = async_create_clientsession(hass)
+    fordpass = FordPass(session=session, username=username, password=password,
+                        vehicle_type=vehicle_type, refresh_token=refresh_token)
+    vehicles = await fordpass.get_vehicles()
+    if config_entry.entry_id not in hass.data:
         hass.data[config_entry.entry_id] = {}
-        hass.data[config_entry.entry_id][FORD_VEHICLES] = []
-
-        for single in vehicles:
-            single_vehicle = FordVehicle(fpass, single)
-            await hass.async_add_executor_job(single_vehicle.refresh_status)
-            if single_vehicle.is_valid:
-                hass.data[config_entry.entry_id][FORD_VEHICLES].append(single_vehicle)
-
-        s_manager = StateManager(fpass, scan_interval * 60, hass.data[config_entry.entry_id][FORD_VEHICLES])
-        hass.data[config_entry.entry_id][STATES_MANAGER] = s_manager
-
-        for platform in {"device_tracker", "sensor", "switch", "lock"}:
+    if vehicles is not None:
+        for s_vehicle in vehicles:
+            _LOGGER.debug(f"Got vehicle: {s_vehicle}")
+            if s_vehicle["vehicleAuthorizationIndicator"] == 1:
+                ford_vehicle = FordVehicle(hass, fordpass, s_vehicle, scan_interval)
+                hass.data[config_entry.entry_id][FORD_VEHICLES] = []
+                hass.data[config_entry.entry_id][FORD_VEHICLES].append(ford_vehicle)
+                await ford_vehicle.async_refresh()
+        for platform in {"device_tracker", "switch", "lock", "sensor"}:
             hass.async_create_task(hass.config_entries.async_forward_entry_setup(
                 config_entry, platform))
-
-        s_manager.start_keep_alive()
         config_entry.add_update_listener(update_listener)
         return True
     return False
 
 
 async def async_unload_entry(hass: HomeAssistant, config_entry):
-    s_manager = hass.data[config_entry.entry_id][STATES_MANAGER]
-    s_manager.stop_gather()
     del hass.data[config_entry.entry_id]
-    hass.data[DOMAIN][ACCOUNTS].remove(config_entry.data[CONF_USERNAME])
     for platform in {"device_tracker", "sensor", "switch", "lock"}:
         await hass.config_entries.async_forward_entry_unload(config_entry, platform)
     return True
