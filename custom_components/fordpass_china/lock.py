@@ -35,10 +35,10 @@ class FordVehilleLock(FordpassSwitchEntity, LockEntity):
         return self.state == STATE_LOCKED
 
     async def async_lock(self, **kwargs: Any) -> None:
-        await self.switch_on()
+        await self.async_switch_on()
 
     async def async_unlock(self, **kwargs: Any) -> None:
-        await self.switch_off()
+        await self.async_switch_off()
 
     async def async_open(self, **kwargs: Any) -> None:
         await self.async_unlock()
