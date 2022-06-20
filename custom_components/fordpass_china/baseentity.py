@@ -258,7 +258,7 @@ class FordpassEntity(CoordinatorEntity):
 
 class FordpassSwitchEntity(FordpassEntity):
     async def async_switch_on(self):
-        self.coordinator.async_set_switch(self._state_key["op_endpoint"], turn_on=True)
+        await self.coordinator.async_set_switch(self._state_key["op_endpoint"], turn_on=True)
 
     async def async_switch_off(self):
-        self.coordinator.async_set_switch(self._state_key["op_endpoint"], turn_on=False)
+        await self.coordinator.async_set_switch(self._state_key["op_endpoint"], turn_on=False)
