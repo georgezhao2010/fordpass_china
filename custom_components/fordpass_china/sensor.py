@@ -1,5 +1,5 @@
 from .baseentity import FordpassEntity
-from .baseentity import VEHICLE_STATUS
+from .baseentity import VEHICLE_SENSORS
 from .const import (
     FORD_VEHICLES
 )
@@ -8,7 +8,7 @@ from .const import (
 async def async_setup_entry(hass, config_entry, async_add_entities):
     sensors = []
     for vehicle in hass.data[config_entry.entry_id][FORD_VEHICLES]:
-        for key in VEHICLE_STATUS:
+        for key in VEHICLE_SENSORS:
             r_sensor = FordVehiCleSensor(vehicle, key)
             sensors.append(r_sensor)
     async_add_entities(sensors)

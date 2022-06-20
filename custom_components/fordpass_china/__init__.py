@@ -46,12 +46,12 @@ async def async_setup_entry(hass: HomeAssistant, config_entry):
     if vehicles is not None:
         for s_vehicle in vehicles:
             _LOGGER.debug(f"Got vehicle: {s_vehicle}")
-            if s_vehicle["vehicleAuthorizationIndicator"] == 1:
+            if s_vehicle["vehicleAuthorizationIndicator"] == 1 and s_vehicle["tcuEnabled"]:
                 ford_vehicle = FordVehicle(hass, fordpass, s_vehicle, scan_interval)
                 hass.data[config_entry.entry_id][FORD_VEHICLES] = []
                 hass.data[config_entry.entry_id][FORD_VEHICLES].append(ford_vehicle)
                 await ford_vehicle.async_refresh()
-        for platform in {"device_tracker", "switch", "lock", "sensor"}:
+        for platform in {"device_tracker", "switch", "lock", "sensor", "binary_sensor"}:
             hass.async_create_task(hass.config_entries.async_forward_entry_setup(
                 config_entry, platform))
         config_entry.add_update_listener(update_listener)

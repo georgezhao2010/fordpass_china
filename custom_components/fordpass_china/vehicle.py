@@ -2,7 +2,7 @@ import math
 import logging
 import asyncio
 from .ford.fordpass import FordPass, CommandResult
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from datetime import timedelta
 import async_timeout
 
@@ -61,21 +61,23 @@ class FordVehicle(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         _LOGGER.debug("Data updating...")
-        data = self.data
+        data = None
         try:
-            async with async_timeout.timeout(60):
-                _status = await self._fordpass.get_vehicle_status(self._vin)
-                if _status:
-                    if "gps" in _status and "latitude" in _status["gps"] and "longitude" in _status["gps"]:
-                        wglat = float(_status["gps"]["latitude"])
-                        wglon = float(_status["gps"]["longitude"])
-                        _status["gps"]["latitude"], _status["gps"]["longitude"] = gps_unshift(wglat, wglon)
-                    data = _status
+            async with async_timeout.timeout(20):
+                data = await self._fordpass.get_vehicle_status(self._vin)
+                if data is not None:
+                    if "gps" in data and "latitude" in data["gps"] and "longitude" in data["gps"]:
+                        wglat = float(data["gps"]["latitude"])
+                        wglon = float(data["gps"]["longitude"])
+                        data["gps"]["latitude"], data["gps"]["longitude"] = gps_unshift(wglat, wglon)
+                else:
+                    raise UpdateFailed("Failed to data update")
         except asyncio.TimeoutError:
             _LOGGER.warning("Data update timed out")
         return data
 
     def set_update_interval(self, update_interval):
+        _LOGGER.warning(f"Data update interval set to {update_interval} minutes")
         self.update_interval = timedelta(minutes=update_interval)
 
     @property

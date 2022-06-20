@@ -10,7 +10,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 _LOGGER = logging.getLogger(__name__)
 
-VEHICLE_STATUS = [
+VEHICLE_SENSORS = [
     {
         "key": "alarm",
         "name": "Alarm",
@@ -95,47 +95,7 @@ VEHICLE_STATUS = [
         "name": "Rear Passenger Window Position",
         "key_path": ["windowPosition", "rearPassWindowPos", "value"],
         "icon": "mdi:dock-window"
-    },{
-        "key": "right_rear_door",
-        "name": "Right Rear Door",
-        "key_path": ["doorStatus", "rightRearDoor", "value"],
-        "icon": "mdi:car-door"
-    },{
-        "key": "left_rear_door",
-        "name": "Left Rear Door",
-        "key_path": ["doorStatus", "leftRearDoor", "value"],
-        "icon": "mdi:car-door"
-    },{
-        "key": "driver_door",
-        "name": "Driver Door",
-        "key_path": ["doorStatus", "driverDoor", "value"],
-        "icon": "mdi:car-door"
-    },{
-        "key": "passenger_door",
-        "name": "Passenger Door",
-        "key_path": ["doorStatus", "passengerDoor", "value"],
-        "icon": "mdi:car-door"
-    },{
-        "key": "hood_door",
-        "name": "Hood",
-        "key_path": ["doorStatus", "hoodDoor", "value"],
-        "icon": "mdi:car-door"
-    },{
-        "key": "tail_gate_door",
-        "name": "Tail Gate Door",
-        "key_path": ["doorStatus", "tailgateDoor", "value"],
-        "icon": "mdi:car-door"
-    },{
-        "key": "inner_tail_gate_oor",
-        "name": "Inner Tail Gate Door",
-        "key_path": ["doorStatus", "innerTailgateDoor", "value"],
-        "icon": "mdi:car-door"
-    },{
-        "key": "ignition_status",
-        "name": "Ignition Status",
-        "key_path": ["ignitionStatus", "value"],
-        "icon": "mdi:engine"
-    }
+    },
 ]
 
 VEHICLE_SWITCHES = [
@@ -155,6 +115,94 @@ VEHICLE_LOCKS = [
         "key_path": ["lockStatus", "value"],
         "op_endpoint": "doors/lock",
         "icon": "mdi:lock"
+    }
+]
+
+VEHICLE_BINARY_SENSORS = [
+    {
+        "key": "right_rear_door",
+        "name": "Right Rear Door",
+        "key_path": ["doorStatus", "rightRearDoor", "value"],
+        "icon": "mdi:car-door",
+        "off_state": "Closed",
+        "device_class": "door"
+    }, {
+        "key": "left_rear_door",
+        "name": "Left Rear Door",
+        "key_path": ["doorStatus", "leftRearDoor", "value"],
+        "icon": "mdi:car-door",
+        "off_state": "Closed",
+        "device_class": "door"
+    }, {
+        "key": "driver_door",
+        "name": "Driver Door",
+        "key_path": ["doorStatus", "driverDoor", "value"],
+        "icon": "mdi:car-door",
+        "off_state": "Closed",
+        "device_class": "door"
+    }, {
+        "key": "passenger_door",
+        "name": "Passenger Door",
+        "key_path": ["doorStatus", "passengerDoor", "value"],
+        "icon": "mdi:car-door",
+        "off_state": "Closed",
+        "device_class": "door"
+    }, {
+        "key": "hood_door",
+        "name": "Hood",
+        "key_path": ["doorStatus", "hoodDoor", "value"],
+        "icon": "mdi:car-door",
+        "off_state": "Closed",
+        "device_class": "door"
+    }, {
+        "key": "tail_gate_door",
+        "name": "Tail Gate Door",
+        "key_path": ["doorStatus", "tailgateDoor", "value"],
+        "icon": "mdi:car-door",
+        "off_state": "Closed",
+        "device_class": "door"
+    }, {
+        "key": "inner_tail_gate_oor",
+        "name": "Inner Tail Gate Door",
+        "key_path": ["doorStatus", "innerTailgateDoor", "value"],
+        "icon": "mdi:car-door",
+        "off_state": "Closed",
+        "device_class": "door"
+    }, {
+        "key": "driver_window",
+        "name": "Driver Window",
+        "key_path": ["windowPosition", "driverWindowPosition", "value"],
+        "icon": "mdi:dock-window",
+        "off_state": "Fully_Closed",
+        "device_class": "window"
+    }, {
+        "key": "pass_window",
+        "name": "Passenger Window",
+        "key_path": ["windowPosition", "passWindowPosition", "value"],
+        "icon": "mdi:dock-window",
+        "off_state": "Fully_Closed",
+        "device_class": "window"
+    }, {
+        "key": "rear_driver_window",
+        "name": "Rear Driver Window",
+        "key_path": ["windowPosition", "rearDriverWindowPos", "value"],
+        "icon": "mdi:dock-window",
+        "off_state": "Fully_Closed",
+        "device_class": "window"
+    }, {
+        "key": "rear_pass_window",
+        "name": "Rear Passenger Window",
+        "key_path": ["windowPosition", "rearPassWindowPos", "value"],
+        "icon": "mdi:dock-window",
+        "off_state": "Fully_Closed",
+        "device_class": "window"
+    }, {
+        "key": "ignition Status",
+        "name": "Ignition_status",
+        "key_path": ["ignitionStatus", "value"],
+        "icon": "mdi:engine",
+        "off_state": "Off",
+        "device_class": "ignition"
     }
 ]
 
