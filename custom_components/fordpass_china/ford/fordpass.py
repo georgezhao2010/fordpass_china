@@ -71,7 +71,7 @@ class FordPass(object):
         code = -1
         response = None
         try:
-            r = await self._session.request(method=method, url=url, timeout=10, **kwargs)
+            r = await self._session.request(method=method, url=url, timeout=30, **kwargs)
             code = r.status
             raw = await r.read()
             response = json.loads(raw)
@@ -79,8 +79,6 @@ class FordPass(object):
                 _LOGGER.error(f"API {url} result code: {code}, reason: {r.reason}, result: {response}")
         except ClientError as e:
             _LOGGER.error(f"Connection error, API={url}, method={method}, params={kwargs}, error={e}")
-        except Exception as e:
-            _LOGGER.error(f"API={url}, method={method}, params={kwargs}, error={e}")
         return code, response
 
     def clear_token(self):

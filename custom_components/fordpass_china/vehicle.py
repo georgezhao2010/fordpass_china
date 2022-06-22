@@ -77,7 +77,7 @@ class FordVehicle(DataUpdateCoordinator):
         return data
 
     def set_update_interval(self, update_interval):
-        _LOGGER.warning(f"Data update interval set to {update_interval} minutes")
+        _LOGGER.debug(f"Data update interval set to {update_interval} minutes")
         self.update_interval = timedelta(minutes=update_interval)
 
     @property
