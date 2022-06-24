@@ -13,8 +13,6 @@ from homeassistant.const import (
     CONF_USERNAME,
     CONF_SCAN_INTERVAL
 )
-import asyncio
-from asyncio import TimeoutError
 from .ford.fordpass import FordPass
 from .vehicle import FordVehicle
 
@@ -42,13 +40,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry):
     session = async_create_clientsession(hass)
     fordpass = FordPass(session=session, username=username, password=password,
                         vehicle_type=vehicle_type, refresh_token=refresh_token)
-    while True:
-        try:
-            vehicles = await fordpass.get_vehicles()
-            break
-        except TimeoutError:
-            pass
-        await asyncio.sleep(10)
+    vehicles = await fordpass.get_vehicles()
     if config_entry.entry_id not in hass.data:
         hass.data[config_entry.entry_id] = {}
     if vehicles is not None:
