@@ -175,7 +175,35 @@ VEHICLE_BINARY_SENSORS = [
         "icon": "mdi:engine",
         "off_state": "Off",
         "device_class": "ignition"
-    }
+    }, {
+        "key": "driver_window",
+        "name": "Driver Window",
+        "key_path": ["windowPosition", "driverWindowPosition", "value"],
+        "off_state": "Fully_Closed",
+        "icon": "mdi:dock-window",
+        "device_class": "window"
+    }, {
+        "key": "pass_window",
+        "name": "Passenger Window",
+        "key_path": ["windowPosition", "passWindowPosition", "value"],
+        "off_state": "Fully_Closed",
+        "icon": "mdi:dock-window",
+        "device_class": "window"
+    }, {
+        "key": "rear_driver_window",
+        "name": "Rear Driver Window",
+        "key_path": ["windowPosition", "rearDriverWindowPos", "value"],
+        "off_state": "Fully_Closed",
+        "icon": "mdi:dock-window",
+        "device_class": "window"
+    }, {
+        "key": "rear_pass_window",
+        "name": "Rear Passenger Window",
+        "key_path": ["windowPosition", "rearPassWindowPos", "value"],
+        "off_state": "Fully_Closed",
+        "icon": "mdi:dock-window",
+        "device_class": "window"
+    },
 ]
 
 

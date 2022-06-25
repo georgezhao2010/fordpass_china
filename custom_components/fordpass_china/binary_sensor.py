@@ -3,7 +3,6 @@ from .baseentity import VEHICLE_BINARY_SENSORS
 from .const import (
     FORD_VEHICLES
 )
-
 from homeassistant.components.binary_sensor import BinarySensorEntity
 
 

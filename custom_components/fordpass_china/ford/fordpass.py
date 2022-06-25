@@ -68,17 +68,12 @@ class FordPass(object):
         return header
 
     async def call_api(self, url, method, **kwargs: Any):
-        code = -1
-        response = None
-        try:
-            r = await self._session.request(method=method, url=url, timeout=30, **kwargs)
-            code = r.status
-            raw = await r.read()
-            response = json.loads(raw)
-            if code != 200:
-                _LOGGER.error(f"API {url} result code: {code}, reason: {r.reason}, result: {response}")
-        except ClientError as e:
-            _LOGGER.error(f"Connection error, API={url}, method={method}, params={kwargs}, error={e}")
+        r = await self._session.request(method=method, url=url, timeout=30, **kwargs)
+        code = r.status
+        raw = await r.read()
+        response = json.loads(raw)
+        if code != 200:
+            _LOGGER.error(f"API {url} result code: {code}, reason: {r.reason}, result: {response}")
         return code, response
 
     def clear_token(self):
