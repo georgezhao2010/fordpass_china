@@ -11,7 +11,7 @@
 
 **注意：该组件仅支持中国大陆使用的福特/林肯汽车。**
 
-**Note: This component is only used for ford/lincoln vehicles in China main-land**
+**Note: This component is only used for Ford/Lincoln vehicles in China main-land**
 
 ![lovelace](https://user-images.githubusercontent.com/27534713/175824781-0ae85a3f-4238-4841-8681-ca9fe6e30bec.png)
 
