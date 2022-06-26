@@ -75,7 +75,7 @@
 在Home Assistant集成中添加"FordPass China"，~~并输入福特派的账户名及密码~~(由于福特中国更改了API认证方式，因此账户密码认证方式暂不可用)，请选择使用refresh_token认证方式。如果组件发现了你的汽车，将会显示它。
 
 # refresh_token
-#5
+这->[#5](https://github.com/georgezhao2010/fordpass_china/issues/5#issue-1284972197)
 
 # Debug
 要打开调试日志输出，在configuration.yaml中做如下配置
