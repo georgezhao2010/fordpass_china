@@ -10,6 +10,7 @@
 福特派和林肯之道账户通用，但车辆数据不互通，因此配置集成时要选择是福特派还是林肯之道。
 
 **注意：该组件仅支持中国大陆使用的福特/林肯汽车。**
+
 **Note: This component is only used for ford/lincoln vehicles in China main-land**
 
 ![lovelace](https://user-images.githubusercontent.com/27534713/175824781-0ae85a3f-4238-4841-8681-ca9fe6e30bec.png)
