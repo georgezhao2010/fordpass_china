@@ -46,9 +46,9 @@
 |sensor.{vin}_range|sensor|剩余里程|
 |sensor.{vin}_oil_life|sensor|机油寿命|
 |sensor.{vin}_driver_window_position|sensor|左前车窗开启位置|
-|sensor.{vin}_pass_window_position|右前车窗开启位置|
-|sensor.{vin}_rear_driver_window_pos|左后车窗开启位置|
-|sensor.{vin}_rear_pass_window_pos|右后车窗开启位置|
+|sensor.{vin}_pass_window_position|sensor|右前车窗开启位置|
+|sensor.{vin}_rear_driver_window_pos|sensor|左后车窗开启位置|
+|sensor.{vin}_rear_pass_window_pos|sensor|右后车窗开启位置|
 |sensor.{vin}_left_front_tire_pressure|sensor|左前轮胎胎压|
 |sensor.{vin}_right_front_tire_pressure|sensor|右前轮胎胎压|
 |sensor.{vin}_left_rear_tire_pressure|sensor|左后轮胎胎压|
