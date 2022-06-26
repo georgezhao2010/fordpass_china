@@ -1,4 +1,5 @@
 {
     "name": "FordPass China",
+    "country": ["CN"],
     "render_readme": true
 }
