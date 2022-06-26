@@ -1,6 +1,7 @@
 # FordPass China
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
+[![Stable](https://img.shields.io/github/v/release/georgezhao2010/fordpass_china)](https://github.com/georgezhao2010/fordpass_china/releases/latest)
 
 福特派的Home Assistant集成组件，同时支持林肯之道。
 
