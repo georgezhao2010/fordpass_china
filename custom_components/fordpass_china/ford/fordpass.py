@@ -11,21 +11,10 @@ API_URL = "https://cn.api.mps.ford.com.cn/"
 
 DEFAULT_HEADERS = {
     "Accept": "*/*",
-    "Accept-Language": "en-us",
+    "Accept-Language": "zh-CN,zh-Hans;q=0.9",
     "User-Agent": "fordpass-cn/320 CFNetwork/1331.0.7 Darwin/21.4.0",
-    "Accept-Encoding": "gzip, deflate, br",
-    "authorization": "Basic ZWFpLWNsaWVudDo=",
+    "Accept-Encoding": "gzip, deflate",
 }
-
-'''
-The old application IDs
-
-APPLICATION_ID = {
-    "Ford": "46409D04-BD1B-40C6-9D51-13A52666E9F9",
-    "Lincoln": "D14B573E-4C11-404B-89AD-DC1EF8C34C28"
-}
-'''
-
 
 APPLICATION_ID = {
     "ford": "35F9024B-010E-4FE7-B202-62D941F8681C",
@@ -41,6 +30,7 @@ class CommandResult(str, Enum):
     SUCCESS = "success"
     PENDING = "pending"
     FAILED = "failed"
+
 
 class FordPass(object):
     def __init__(self, session: ClientSession, username: str = None, password: str = None,
@@ -145,14 +135,15 @@ class FordPass(object):
             await self.auth()
         return self._token is not None
 
-    async def safe_call_api(self, url, method="get"):
+    async def safe_call_api(self, url, method="get", headers=None):
         code = -1
         response = None
         if await self.check_token():
             code, response = await self.call_api(
                 url=url,
                 method=method,
-                headers=self.make_api_header())
+                headers=dict(headers.items(),  **self.make_api_header()) if headers else self.make_api_header()
+            )
         return code, response
 
     async def get_user_info(self):
@@ -184,6 +175,12 @@ class FordPass(object):
             url=f"{CV_URL}api/vehicles/{vin}/authstatus"
         )
         return response["vehicleAuthorizationStatus"]["authorization"] if code == 200 else None
+
+    async def get_vehicle_service_history(self, vin):
+        code, response = await self.safe_call_api(
+            url=f"{API_URL}/api/servicehistory/v1/service-history?vin={vin}"
+        )
+        return response if code == 200 else None
 
     async def _send_command(self,  url, method):
         _LOGGER.debug(f"Send command URL:{url}, method:{method}")

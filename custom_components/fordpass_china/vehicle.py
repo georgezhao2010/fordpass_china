@@ -58,6 +58,7 @@ class FordVehicle(DataUpdateCoordinator):
         self._model = vehicle_info["modelName"]
         self._year = vehicle_info["modelYear"]
         self._vehicle_name = vehicle_info["nickName"]
+        self._commandid = None
 
     async def _async_update_data(self):
         _LOGGER.debug("Data updating...")
@@ -96,18 +97,25 @@ class FordVehicle(DataUpdateCoordinator):
     def vehicle_name(self) -> str:
         return self._vehicle_name
 
-    async def _check_command(self, commandid, end_point):
-        while True:
-            result = await self._fordpass.async_get_switch_completed(self.vin, end_point, commandid)
-            if result == CommandResult.PENDING:
-                await asyncio.sleep(1)
-                continue
-            else:
-                if result == CommandResult.SUCCESS:
-                    await self.async_refresh()
-                return
+    async def _check_command(self, end_point):
+        try:
+            while True:
+                result = await self._fordpass.async_get_switch_completed(self.vin, end_point, self._commandid)
+                if result == CommandResult.PENDING:
+                    await asyncio.sleep(1)
+                    continue
+                else:
+                    if result == CommandResult.SUCCESS:
+                        await self.async_refresh()
+                    break
+        except Exception:
+            pass
+        self._commandid = None
 
     async def async_set_switch(self, end_point, turn_on):
-        commandid = await self._fordpass.async_set_switch(self.vin, end_point, turn_on)
-        if commandid:
-            self.hass.loop.create_task(self._check_command(commandid, end_point))
+        if not self._commandid:
+            self._commandid = await self._fordpass.async_set_switch(self.vin, end_point, turn_on)
+            if self._commandid:
+                self.hass.loop.create_task(self._check_command(end_point))
+        else:
+            _LOGGER.warning(f"Last command id={self._commandid} is pending")
