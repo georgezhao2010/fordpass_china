@@ -25,9 +25,11 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class FordVehilleLock(FordpassSwitchEntity, LockEntity):
     @property
     def state(self):
-        if self.coordinator.check_command(self._state_key["op_endpoint"], turn_on=True):
+        if self.coordinator.check_command_pending(
+                self._state_key["op_endpoint"], turn_on=True):
             result = STATE_LOCKING
-        elif self.coordinator.check_command(self._state_key["op_endpoint"], turn_on=False):
+        elif self.coordinator.check_command_pending(
+                self._state_key["op_endpoint"], turn_on=False):
             result = STATE_UNLOCKING
         else:
             value = self.get_value()
