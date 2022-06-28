@@ -59,6 +59,8 @@ class FordVehicle(DataUpdateCoordinator):
         self._year = vehicle_info["modelYear"]
         self._vehicle_name = vehicle_info["nickName"]
         self._commandid = None
+        self._command_end_point = None
+        self._command_turn_on = None
 
     async def _async_update_data(self):
         _LOGGER.debug("Data updating...")
@@ -97,6 +99,12 @@ class FordVehicle(DataUpdateCoordinator):
     def vehicle_name(self) -> str:
         return self._vehicle_name
 
+    def check_command_pending(self, end_point, turn_on):
+        if self._commandid:
+            if self._command_end_point == end_point and self._command_turn_on == turn_on:
+                return True
+        return False
+
     async def _check_command(self, end_point):
         try:
             while True:
@@ -111,11 +119,15 @@ class FordVehicle(DataUpdateCoordinator):
         except Exception:
             pass
         self._commandid = None
+        self._command_end_point = None
+        self._command_turn_on = None
 
     async def async_set_switch(self, end_point, turn_on):
         if not self._commandid:
             self._commandid = await self._fordpass.async_set_switch(self.vin, end_point, turn_on)
             if self._commandid:
+                self._command_end_point = end_point
+                self._command_turn_on = turn_on
                 self.hass.loop.create_task(self._check_command(end_point))
         else:
             _LOGGER.warning(f"Last command id={self._commandid} is pending")

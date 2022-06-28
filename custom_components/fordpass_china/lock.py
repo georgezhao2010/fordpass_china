@@ -4,6 +4,8 @@ from .baseentity import VEHICLE_LOCKS
 from homeassistant.const import (
     STATE_LOCKED,
     STATE_UNLOCKED,
+    STATE_LOCKING,
+    STATE_UNLOCKING
 )
 from typing import Any
 from .const import (
@@ -23,11 +25,16 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class FordVehilleLock(FordpassSwitchEntity, LockEntity):
     @property
     def state(self):
-        value = self.get_value()
-        if value == "LOCKED":
-            result = STATE_LOCKED
+        if self.coordinator.check_command(self._state_key["op_endpoint"], turn_on=True):
+            result = STATE_LOCKING
+        elif self.coordinator.check_command(self._state_key["op_endpoint"], turn_on=False):
+            result = STATE_UNLOCKING
         else:
-            result = STATE_UNLOCKED
+            value = self.get_value()
+            if value == "LOCKED":
+                result = STATE_LOCKED
+            else:
+                result = STATE_UNLOCKED
         return result
 
     @property
