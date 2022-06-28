@@ -114,7 +114,6 @@ VEHICLE_LOCKS = [
         "name": "Lock",
         "key_path": ["lockStatus", "value"],
         "op_endpoint": "doors/lock",
-        "icon": "mdi:lock"
     }
 ]
 
@@ -213,7 +212,7 @@ class FordpassEntity(CoordinatorEntity):
 
     @property
     def icon(self):
-        return self._state_key["icon"] if "icon" in self._state_key else None;
+        return self._state_key.get("icon")
 
     @property
     def device_info(self):

@@ -106,21 +106,27 @@ class FordVehicle(DataUpdateCoordinator):
         return False
 
     async def _check_command(self, end_point):
+        refresh_data = False
         try:
-            while True:
+            for i in range(0, 30):
+                if i >= 20:
+                    _LOGGER.error(f"Command {self._commandid} at {self._command_end_point} is timed out")
+                    break
                 result = await self._fordpass.async_get_switch_completed(self.vin, end_point, self._commandid)
                 if result == CommandResult.PENDING:
                     await asyncio.sleep(1)
                     continue
                 else:
                     if result == CommandResult.SUCCESS:
-                        await self.async_refresh()
+                        refresh_data = True
                     break
         except Exception:
             pass
         self._commandid = None
         self._command_end_point = None
         self._command_turn_on = None
+        if refresh_data:
+            await self.async_refresh()
 
     async def async_set_switch(self, end_point, turn_on):
         if not self._commandid:

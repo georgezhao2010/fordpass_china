@@ -45,9 +45,11 @@ class FordVehilleLock(FordpassSwitchEntity, LockEntity):
 
     async def async_lock(self, **kwargs: Any) -> None:
         await self.async_switch_on()
+        self.schedule_update_ha_state()
 
     async def async_unlock(self, **kwargs: Any) -> None:
         await self.async_switch_off()
+        self.schedule_update_ha_state()
 
     async def async_open(self, **kwargs: Any) -> None:
         await self.async_unlock()
