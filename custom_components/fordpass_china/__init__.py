@@ -1,5 +1,6 @@
 import logging
-import asyncio
+import homeassistant.util.dt as dt_util
+from homeassistant.helpers.event import async_track_point_in_utc_time
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from homeassistant.core import HomeAssistant
 from .const import (
@@ -20,9 +21,33 @@ from .vehicle import FordVehicle
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_entities(hass: HomeAssistant, config_entry, fordpass: FordPass):
+
+
+
+
+async def update_listener(hass, config_entry):
+    update_interval = config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+    for coordinator in hass.data[config_entry.entry_id][FORD_VEHICLES]:
+        coordinator.set_update_interval(update_interval)
+
+
+async def async_setup(hass: HomeAssistant, hass_config: dict):
+    hass.data.setdefault(DOMAIN, {})
+    return True
+
+
+async def async_setup_entry(hass: HomeAssistant, config_entry):
+    config = config_entry.data
+    vehicle_type = config.get(CONF_VEHICLE_TYPE)
+    username = config.get(CONF_USERNAME)
+    password = config.get(CONF_PASSWORD)
+    refresh_token = config.get(CONF_REFRESH_TOKEN)
+    session = async_create_clientsession(hass)
     scan_interval = config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
-    while True:
+    fordpass = FordPass(session=session, username=username, password=password,
+                        vehicle_type=vehicle_type, refresh_token=refresh_token)
+
+    async def async_setup_entities(now):
         try:
             if fordpass.refresh_token():
                 vehicles = await fordpass.get_vehicles()
@@ -44,30 +69,10 @@ async def async_setup_entities(hass: HomeAssistant, config_entry, fordpass: Ford
                 _LOGGER.error("Failed to refresh token, the refresh_token is invalid")
             return
         except Exception:
-            await asyncio.sleep(30)
+            pass
+        async_track_point_in_utc_time(hass, async_setup_entities, dt_util.utcnow() + 30)
 
-
-async def update_listener(hass, config_entry):
-    update_interval = config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
-    for coordinator in hass.data[config_entry.entry_id][FORD_VEHICLES]:
-        coordinator.set_update_interval(update_interval)
-
-
-async def async_setup(hass: HomeAssistant, hass_config: dict):
-    hass.data.setdefault(DOMAIN, {})
-    return True
-
-
-async def async_setup_entry(hass: HomeAssistant, config_entry):
-    config = config_entry.data
-    vehicle_type = config.get(CONF_VEHICLE_TYPE)
-    username = config.get(CONF_USERNAME)
-    password = config.get(CONF_PASSWORD)
-    refresh_token = config.get(CONF_REFRESH_TOKEN)
-    session = async_create_clientsession(hass)
-    fordpass = FordPass(session=session, username=username, password=password,
-                        vehicle_type=vehicle_type, refresh_token=refresh_token)
-    hass.async_create_task(async_setup_entities(hass, config_entry, fordpass))
+    async_track_point_in_utc_time(hass, async_setup_entities, dt_util.utcnow())
     return True
 
 
