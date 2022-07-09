@@ -1,11 +1,12 @@
 {
-  "domain": "bj_sgcc_energy",
-  "name": "北京用电信息查询",
-  "version": "v0.2.2",
-  "documentation": "https://github.com/georgezhao2010/bj_sgcc_energy",
-  "issue_tracker": "https://github.com/georgezhao2010/bj_sgcc_energy/issues",
-  "iot_class": "cloud_polling",
-  "dependencies": [],
+  "domain": "fordpass_china",
+  "name": "FordPass China",
+  "version": "v0.3.5",
+  "config_flow": true,
+  "documentation": "https://github.com/georgezhao2010/fordpass_china",
+  "issue_tracker": "https://github.com/georgezhao2010/fordpass_china/issues",
   "requirements": [],
+  "dependencies": [],
+  "iot_class": "cloud_polling",
   "codeowners": ["@georgezhao2010"]
 }
