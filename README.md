@@ -1,6 +1,6 @@
 # FordPass China
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/hacs/integration)
 [![Donate](https://img.shields.io/badge/donate-BuyMeCoffee-yellow.svg)](https://www.buymeacoffee.com/georgezhao2010)
 [![Stable](https://img.shields.io/github/v/release/georgezhao2010/fordpass_china)](https://github.com/georgezhao2010/fordpass_china/releases/latest)
 
