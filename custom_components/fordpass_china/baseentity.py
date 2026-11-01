@@ -1,9 +1,9 @@
 import logging
 from homeassistant.const import (
-    LENGTH_KILOMETERS,
-    ELECTRIC_POTENTIAL_VOLT,
     PERCENTAGE,
-    STATE_UNKNOWN
+    STATE_UNKNOWN,
+    UnitOfElectricPotential,
+    UnitOfLength
 )
 from .const import DOMAIN
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -21,7 +21,7 @@ VEHICLE_SENSORS = [
         "name": "Odometer",
         "key_path": ["odometer", "value"],
         "icon": "mdi:car-cruise-control",
-        "unit": LENGTH_KILOMETERS
+        "unit": UnitOfLength.KILOMETERS
     },{
         "key": "fuel",
         "name": "Fuel",
@@ -33,7 +33,7 @@ VEHICLE_SENSORS = [
         "name": "Range",
         "key_path": ["fuel", "distanceToEmpty"],
         "icon": "mdi:map-marker-distance",
-        "unit": LENGTH_KILOMETERS
+        "unit": UnitOfLength.KILOMETERS
     },{
         "key": "battery_health",
         "name": "Battery Health",
@@ -44,7 +44,7 @@ VEHICLE_SENSORS = [
         "name": "Battery Voltage",
         "key_path": ["battery", "batteryStatusActual", "value"],
         "icon": "mdi:car-battery",
-        "unit": ELECTRIC_POTENTIAL_VOLT
+        "unit": UnitOfElectricPotential.VOLT
     },{
         "key": "oil_life",
         "name": "Oil Life",

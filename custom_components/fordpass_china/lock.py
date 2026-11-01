@@ -1,12 +1,6 @@
-from homeassistant.components.lock import LockEntity
+from homeassistant.components.lock import LockEntity, LockState
 from .baseentity import FordpassSwitchEntity
 from .baseentity import VEHICLE_LOCKS
-from homeassistant.const import (
-    STATE_LOCKED,
-    STATE_UNLOCKED,
-    STATE_LOCKING,
-    STATE_UNLOCKING
-)
 from typing import Any
 from .const import (
     FORD_VEHICLES
@@ -27,21 +21,21 @@ class FordVehilleLock(FordpassSwitchEntity, LockEntity):
     def state(self):
         if self.coordinator.check_command_pending(
                 self._state_key["op_endpoint"], turn_on=True):
-            result = STATE_LOCKING
+            result = LockState.LOCKING
         elif self.coordinator.check_command_pending(
                 self._state_key["op_endpoint"], turn_on=False):
-            result = STATE_UNLOCKING
+            result = LockState.UNLOCKING
         else:
             value = self.get_value()
             if value == "LOCKED":
-                result = STATE_LOCKED
+                result = LockState.LOCKED
             else:
-                result = STATE_UNLOCKED
+                result = LockState.UNLOCKED
         return result
 
     @property
     def is_locked(self):
-        return self.state == STATE_LOCKED
+        return self.state == LockState.LOCKED
 
     async def async_lock(self, **kwargs: Any) -> None:
         await self.async_switch_on()
