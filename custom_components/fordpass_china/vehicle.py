@@ -4,7 +4,6 @@ import asyncio
 from .ford.fordpass import FordPass, CommandResult
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from datetime import timedelta
-import async_timeout
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -66,7 +65,7 @@ class FordVehicle(DataUpdateCoordinator):
         _LOGGER.debug("Data updating...")
         data = None
         try:
-            async with async_timeout.timeout(20):
+            async with asyncio.timeout(20):
                 data = await self._fordpass.get_vehicle_status(self._vin)
                 if data is not None:
                     if "gps" in data and "latitude" in data["gps"] and "longitude" in data["gps"]:

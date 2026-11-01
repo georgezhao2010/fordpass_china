@@ -58,9 +58,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry):
                             hass.data[config_entry.entry_id][FORD_VEHICLES] = []
                             hass.data[config_entry.entry_id][FORD_VEHICLES].append(ford_vehicle)
                             await ford_vehicle.async_refresh()
-                    for platform in {"device_tracker", "switch", "lock", "sensor", "binary_sensor"}:
-                        hass.async_create_task(hass.config_entries.async_forward_entry_setup(
-                            config_entry, platform))
+                    hass.async_create_task(hass.config_entries.async_forward_entry_setups(
+                        config_entry, ["device_tracker", "switch", "lock", "sensor", "binary_sensor"]))
                     config_entry.add_update_listener(update_listener)
             else:
                 _LOGGER.error("Failed to refresh token, the refresh_token is invalid")
